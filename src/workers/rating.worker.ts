@@ -12,8 +12,6 @@ import {
 } from "../queue/queue.setup";
 import { EloWinner, calculateElo } from "../utils/calculateElo";
 
-const workerConnection = new IORedis(redisConnectionOptions);
-
 function isRetryableTransactionError(error: unknown): boolean {
   if (
     error instanceof Prisma.PrismaClientKnownRequestError &&
@@ -57,7 +55,9 @@ async function runSerializableTransaction<T>(
   throw new Error("Could not commit transaction after retries.");
 }
 
-async function processMatchJob(job: Job<RatingJobPayload>): Promise<void> {
+export async function processMatchJob(
+  job: Job<RatingJobPayload>,
+): Promise<void> {
   const { matchId } = job.data;
 
   if (!Number.isInteger(matchId) || matchId <= 0) {
@@ -143,35 +143,62 @@ async function processMatchJob(job: Job<RatingJobPayload>): Promise<void> {
   });
 }
 
-const worker = new Worker<RatingJobPayload>(
-  RATING_QUEUE_NAME,
-  processMatchJob,
-  {
-    connection: workerConnection,
-    concurrency: Number(process.env.RATING_WORKER_CONCURRENCY ?? 5),
-  },
-);
+type WorkerRuntime = {
+  worker: Worker<RatingJobPayload>;
+  workerConnection: IORedis;
+};
 
-worker.on("completed", (job) => {
-  console.info(`Job ${job.id ?? "unknown"} processed successfully.`);
-});
+function createWorkerRuntime(): WorkerRuntime {
+  const workerConnection = new IORedis(redisConnectionOptions);
 
-worker.on("failed", (job, error) => {
-  console.error(`Job ${job?.id ?? "unknown"} failed.`, error);
-});
+  const worker = new Worker<RatingJobPayload>(
+    RATING_QUEUE_NAME,
+    processMatchJob,
+    {
+      connection: workerConnection,
+      concurrency: Number(process.env.RATING_WORKER_CONCURRENCY ?? 5),
+    },
+  );
 
-async function shutdown(signal: NodeJS.Signals): Promise<void> {
+  worker.on("completed", (job) => {
+    console.info(`Job ${job.id ?? "unknown"} processed successfully.`);
+  });
+
+  worker.on("failed", (job, error) => {
+    console.error(`Job ${job?.id ?? "unknown"} failed.`, error);
+  });
+
+  return {
+    worker,
+    workerConnection,
+  };
+}
+
+async function shutdown(
+  signal: NodeJS.Signals,
+  runtime: WorkerRuntime,
+): Promise<void> {
   console.info(`Received ${signal}. Closing rating worker...`);
-  await worker.close();
-  await workerConnection.quit();
+  await runtime.worker.close();
+  await runtime.workerConnection.quit();
   await prisma.$disconnect();
   process.exit(0);
 }
 
-process.on("SIGINT", () => {
-  void shutdown("SIGINT");
-});
+export function startRatingWorker(): Worker<RatingJobPayload> {
+  const runtime = createWorkerRuntime();
 
-process.on("SIGTERM", () => {
-  void shutdown("SIGTERM");
-});
+  process.on("SIGINT", () => {
+    void shutdown("SIGINT", runtime);
+  });
+
+  process.on("SIGTERM", () => {
+    void shutdown("SIGTERM", runtime);
+  });
+
+  return runtime.worker;
+}
+
+if (typeof require !== "undefined" && require.main === module) {
+  startRatingWorker();
+}

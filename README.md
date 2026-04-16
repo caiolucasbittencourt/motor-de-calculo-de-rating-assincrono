@@ -103,6 +103,8 @@ npm run prisma:deploy
 | `npm run dev`             | Inicia a API em desenvolvimento com hot-reload                    |
 | `npm run worker:dev`      | Inicia o worker em desenvolvimento com hot-reload                 |
 | `npm run build`           | Compila o projeto TypeScript                                      |
+| `npm test`                | Executa os testes unitários e de integração                       |
+| `npm run test:watch`      | Executa os testes em modo watch                                   |
 | `npm run start`           | Inicia a API compilada                                            |
 | `npm run worker:start`    | Inicia o worker compilado                                         |
 | `npm run prisma:generate` | Gera o Prisma Client a partir do schema                           |

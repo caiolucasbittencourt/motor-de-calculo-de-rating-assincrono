@@ -1,0 +1,43 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum MatchStatus {
+  PENDING
+  PROCESSED
+}
+
+model User {
+  id            Int           @id @default(autoincrement())
+  username      String        @unique
+  currentRating Int           @default(1000)
+  createdAt     DateTime      @default(now())
+
+  matchesAsP1   MatchRecord[] @relation("Player1Matches")
+  matchesAsP2   MatchRecord[] @relation("Player2Matches")
+  wins          MatchRecord[] @relation("WinnerMatches")
+}
+
+model MatchRecord {
+  id             Int         @id @default(autoincrement())
+  player1Id      Int
+  player2Id      Int
+  winnerId       Int
+  pointsExchanged Int        @default(0)
+  status         MatchStatus @default(PENDING)
+  createdAt      DateTime    @default(now())
+
+  player1        User        @relation("Player1Matches", fields: [player1Id], references: [id], onDelete: Restrict)
+  player2        User        @relation("Player2Matches", fields: [player2Id], references: [id], onDelete: Restrict)
+  winner         User        @relation("WinnerMatches", fields: [winnerId], references: [id], onDelete: Restrict)
+
+  @@index([status])
+  @@index([player1Id])
+  @@index([player2Id])
+  @@index([winnerId])
+}

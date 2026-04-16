@@ -7,6 +7,8 @@
 ![PostgreSQL](https://img.shields.io/badge/postgresql-316192?style=for-the-badge&logo=postgresql&logoColor=white)
 ![Redis](https://img.shields.io/badge/redis-D82C20?style=for-the-badge&logo=redis&logoColor=white)
 ![BullMQ](https://img.shields.io/badge/BullMQ-FF6A00?style=for-the-badge)
+![Vitest](https://img.shields.io/badge/vitest-6E9F18?style=for-the-badge&logo=vitest&logoColor=white)
+![Supertest](https://img.shields.io/badge/supertest-111111?style=for-the-badge)
 
 Uma API assíncrona construída com Node.js, Express, Prisma e BullMQ para processar partidas e recalcular o rating de jogadores em background com consistência transacional.
 
@@ -19,6 +21,8 @@ Uma API assíncrona construída com Node.js, Express, Prisma e BullMQ para proce
 - **PostgreSQL** (Banco de dados relacional)
 - **Redis** (Backend da fila BullMQ)
 - **BullMQ** (Orquestração de jobs assíncronos)
+- **Vitest** (Framework de testes unitários e de integração)
+- **Supertest** (Testes de integração HTTP para endpoints Express)
 
 ### Funcionalidades
 

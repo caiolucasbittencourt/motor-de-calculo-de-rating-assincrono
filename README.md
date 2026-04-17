@@ -5,10 +5,6 @@
 ![Express.js](https://img.shields.io/badge/express.js-404D59?style=for-the-badge&logo=express&logoColor=61DAFB)
 ![Prisma](https://img.shields.io/badge/prisma-2D3748?style=for-the-badge&logo=prisma&logoColor=white)
 ![PostgreSQL](https://img.shields.io/badge/postgresql-316192?style=for-the-badge&logo=postgresql&logoColor=white)
-![Redis](https://img.shields.io/badge/redis-D82C20?style=for-the-badge&logo=redis&logoColor=white)
-![BullMQ](https://img.shields.io/badge/BullMQ-FF6A00?style=for-the-badge)
-![Vitest](https://img.shields.io/badge/vitest-6E9F18?style=for-the-badge&logo=vitest&logoColor=white)
-![Supertest](https://img.shields.io/badge/supertest-111111?style=for-the-badge)
 
 Uma API assíncrona construída com Node.js, Express, Prisma e BullMQ para processar partidas e recalcular o rating de jogadores em background com consistência transacional.
 
@@ -23,6 +19,8 @@ Uma API assíncrona construída com Node.js, Express, Prisma e BullMQ para proce
 - **BullMQ** (Orquestração de jobs assíncronos)
 - **Vitest** (Framework de testes unitários e de integração)
 - **Supertest** (Testes de integração HTTP para endpoints Express)
+- **ESLint** (Lint para padronização e prevenção de problemas comuns)
+- **Prettier** (Formatação automática de código)
 
 ### Funcionalidades
 
@@ -107,6 +105,10 @@ npm run prisma:deploy
 | `npm run dev`             | Inicia a API em desenvolvimento com hot-reload                    |
 | `npm run worker:dev`      | Inicia o worker em desenvolvimento com hot-reload                 |
 | `npm run build`           | Compila o projeto TypeScript                                      |
+| `npm run lint`            | Executa o ESLint no código TypeScript                             |
+| `npm run lint:fix`        | Executa o ESLint com correção automática                          |
+| `npm run format`          | Formata o código com Prettier                                     |
+| `npm run format:check`    | Verifica a formatação com Prettier sem alterar arquivos           |
 | `npm test`                | Executa os testes unitários e de integração                       |
 | `npm run test:watch`      | Executa os testes em modo watch                                   |
 | `npm run start`           | Inicia a API compilada                                            |

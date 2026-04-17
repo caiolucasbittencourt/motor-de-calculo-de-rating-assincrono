@@ -14,14 +14,9 @@ function isPositiveInteger(value: unknown): value is number {
   return typeof value === "number" && Number.isInteger(value) && value > 0;
 }
 
-export async function createMatch(
-  req: Request,
-  res: Response,
-  next: NextFunction,
-): Promise<void> {
+export async function createMatch(req: Request, res: Response, next: NextFunction): Promise<void> {
   try {
-    const { player1Id, player2Id, winnerId } =
-      req.body as Partial<CreateMatchBody>;
+    const { player1Id, player2Id, winnerId } = req.body as Partial<CreateMatchBody>;
 
     if (
       !isPositiveInteger(player1Id) ||
@@ -29,8 +24,7 @@ export async function createMatch(
       !isPositiveInteger(winnerId)
     ) {
       res.status(400).json({
-        message:
-          "player1Id, player2Id e winnerId devem ser inteiros positivos.",
+        message: "player1Id, player2Id e winnerId devem ser inteiros positivos.",
       });
       return;
     }

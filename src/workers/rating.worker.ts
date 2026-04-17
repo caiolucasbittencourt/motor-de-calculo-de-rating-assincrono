@@ -5,18 +5,11 @@ import { MatchStatus, Prisma } from "@prisma/client";
 import IORedis from "ioredis";
 
 import prisma from "../lib/prisma";
-import {
-  RATING_QUEUE_NAME,
-  RatingJobPayload,
-  redisConnectionOptions,
-} from "../queue/queue.setup";
+import { RATING_QUEUE_NAME, RatingJobPayload, redisConnectionOptions } from "../queue/queue.setup";
 import { EloWinner, calculateElo } from "../utils/calculateElo";
 
 function isRetryableTransactionError(error: unknown): boolean {
-  if (
-    error instanceof Prisma.PrismaClientKnownRequestError &&
-    error.code === "P2034"
-  ) {
+  if (error instanceof Prisma.PrismaClientKnownRequestError && error.code === "P2034") {
     return true;
   }
 
@@ -55,9 +48,7 @@ async function runSerializableTransaction<T>(
   throw new Error("Could not commit transaction after retries.");
 }
 
-export async function processMatchJob(
-  job: Job<RatingJobPayload>,
-): Promise<void> {
+export async function processMatchJob(job: Job<RatingJobPayload>): Promise<void> {
   const { matchId } = job.data;
 
   if (!Number.isInteger(matchId) || matchId <= 0) {
@@ -112,9 +103,7 @@ export async function processMatchJob(
     } else if (match.winnerId === player2.id) {
       winner = 2;
     } else {
-      throw new Error(
-        `winnerId ${match.winnerId} is invalid for match ${matchId}.`,
-      );
+      throw new Error(`winnerId ${match.winnerId} is invalid for match ${matchId}.`);
     }
 
     const { newRating1, newRating2, pointsExchanged } = calculateElo(
@@ -151,14 +140,10 @@ type WorkerRuntime = {
 function createWorkerRuntime(): WorkerRuntime {
   const workerConnection = new IORedis(redisConnectionOptions);
 
-  const worker = new Worker<RatingJobPayload>(
-    RATING_QUEUE_NAME,
-    processMatchJob,
-    {
-      connection: workerConnection,
-      concurrency: Number(process.env.RATING_WORKER_CONCURRENCY ?? 5),
-    },
-  );
+  const worker = new Worker<RatingJobPayload>(RATING_QUEUE_NAME, processMatchJob, {
+    connection: workerConnection,
+    concurrency: Number(process.env.RATING_WORKER_CONCURRENCY ?? 5),
+  });
 
   worker.on("completed", (job) => {
     console.info(`Job ${job.id ?? "unknown"} processed successfully.`);
@@ -174,10 +159,7 @@ function createWorkerRuntime(): WorkerRuntime {
   };
 }
 
-async function shutdown(
-  signal: NodeJS.Signals,
-  runtime: WorkerRuntime,
-): Promise<void> {
+async function shutdown(signal: NodeJS.Signals, runtime: WorkerRuntime): Promise<void> {
   console.info(`Received ${signal}. Closing rating worker...`);
   await runtime.worker.close();
   await runtime.workerConnection.quit();
